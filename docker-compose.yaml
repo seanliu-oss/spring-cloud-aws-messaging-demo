@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  localstack:
+    image: localstack/localstack:1.4.0
+    hostname: localstack
+    ports:
+      - '4566:4566'
+    volumes:
+      - ./localstack/ready.d:/etc/localstack/init/ready.d
+      - ./localstack/healthcheck.py:/healthcheck.py
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - SERVICE=sqs
+      - HOSTNAME_EXTERNAL=localstack
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    healthcheck:
+      test: python /healthcheck.py
+      start_period: 60s
+      interval: 30s
+      timeout: 30s
+      retries: 3
+#  my-service:
+#    build: .
+#    environment:
+#      - AWS_REGION=us-east-1
+#      - SQS_ENDPOINT=http://localstack:4566
+#      - SQS_QUEUE_NAME=my-queue
+#    depends_on:
+#      - localstack
